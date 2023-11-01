@@ -20,14 +20,14 @@ const NavBar = (props) => {
                     {link.text}
                   </Link>
                 ))}
-                <button
+                {/* <button
                   onClick={props.toggleDarkMode}
                   className={`self-left justify-self-end ${
                     props.darkMode ? "dark" : ""
                   }`}
                 >
                   {props.darkMode ? "Light Mode" : "Dark Mode"}
-                </button>
+                </button> */}
               </div>
             </div>
           </div>

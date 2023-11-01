@@ -1,6 +1,8 @@
 import React from "react";
 import NavBar from "./Components/NavBar";
 import LocationForm from "./Pages/LocationForm";
+import { TransactionsTable } from "./Pages/TransactionsTable";
+
 import ShowData from "./Pages/ShowData";
 import { Route, Routes } from "react-router-dom";
 
@@ -11,14 +13,16 @@ function App() {
     setDarkMode((prevDarkMode) => !prevDarkMode);
   }
 
-  const appClasses = `h-full w-full mx-auto py-2 ${darkMode ? "dark" : ""}`;
+  // const appClasses = `h-full w-full mx-auto py-2 ${darkMode ? "dark" : ""}`;
 
   return (
-    <div className={appClasses}>
+    <div>
       <NavBar darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+
       <Routes>
         <Route path="/" element={<LocationForm />} />
-        <Route path="show" element={<ShowData />} />
+        <Route path="/show" element={<ShowData />} />
+        <Route path="/jo" element={<TransactionsTable />} />
       </Routes>
     </div>
   );

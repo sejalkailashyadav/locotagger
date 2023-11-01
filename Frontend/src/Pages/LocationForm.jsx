@@ -10,7 +10,9 @@ const LocationForm = () => {
     handleSubmit,
     formState: { errors },
     setValue,
+    reset,
   } = useForm();
+
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [selectedState, setSelectedState] = useState(null);
   const [selectedCity, setSelecteCity] = useState(null);
@@ -19,9 +21,14 @@ const LocationForm = () => {
     data.country = selectedCountry.label || "";
     data.state = selectedState.label || "";
     data.city = selectedCity.label || "";
-
+    reset();
+    setSelectedCountry("");
+    setSelectedState("");
+    setSelecteCity("");
+    alert("Data Successfully Added");
     try {
       const response = await axios.post("http://localhost:3001/form", data);
+      console.log(response);
     } catch (error) {
       console.error("Error:", error);
     }
