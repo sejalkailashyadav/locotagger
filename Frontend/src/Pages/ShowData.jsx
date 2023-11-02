@@ -1,15 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTags, faCheck, faTimes } from "@fortawesome/free-solid-svg-icons";
+
+import {
+  faTags,
+  faCheck,
+  faTimes,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
+import { defultLocations } from "../config/defultLocations";
 
 const LocationForm = () => {
   const [locations, setLocations] = useState([]);
   const [tags, setTags] = useState(["Home", "Office", "Others"]);
   const [selectedLocations, setSelectedLocations] = useState([]);
-  const [selectedTag, setSelectedTag] = useState("");
+  const [selectedTags, setSelectedTags] = useState({});
   const [newTag, setNewTag] = useState("");
   const [isCreatingNewTag, setIsCreatingNewTag] = useState(false);
+  const [selectAll, setSelectAll] = useState(false);
 
   useEffect(() => {
     axios
@@ -29,14 +37,18 @@ const LocationForm = () => {
       );
     } else {
       setSelectedLocations([...selectedLocations, location]);
+      setSelectedTags({
+        ...selectedTags,
+        [location]: selectedTags[location] || "",
+      });
     }
   };
 
   const assignTagsToSelectedLocations = () => {
-    if (selectedTag) {
+    if (selectedLocations.length > 0 && selectedTags) {
       const updatedLocations = locations.map((loc) => {
         if (selectedLocations.includes(loc._id)) {
-          return { ...loc, tag: selectedTag };
+          return { ...loc, tag: selectedTags[loc._id] || selectedTags };
         } else {
           return loc;
         }
@@ -50,14 +62,70 @@ const LocationForm = () => {
   const createNewTag = () => {
     if (newTag) {
       setTags([...tags, newTag]);
-      setSelectedTag(newTag);
       setNewTag("");
       setIsCreatingNewTag(false);
     }
   };
+  const removeTag = (tagToRemove) => {
+    const updatedTags = tags.filter((tag) => tag !== tagToRemove);
+    setTags(updatedTags);
+    setSelectedTags((prevSelectedTags) => {
+      const updatedSelectedTags = { ...prevSelectedTags };
+      for (const locationId in updatedSelectedTags) {
+        if (updatedSelectedTags[locationId] === tagToRemove) {
+          updatedSelectedTags[locationId] = "";
+        }
+      }
+      return updatedSelectedTags;
+    });
+  };
+
+  const OnHandleDelete = (id) => {
+    axios
+      .delete(`http://localhost:3001/delete/${id}`)
+      .then((response) => {
+        setLocations(response.data);
+      })
+      .catch((error) => {
+        console.error("Error deleting data:", error);
+      });
+  };
+
+  const handleCheckboxChange = (event) => {
+    const locationId = event.target.value;
+    if (event.target.checked) {
+      setSelectedLocations([...selectedLocations, locationId]);
+    } else {
+      setSelectedLocations(selectedLocations.filter((id) => id !== locationId));
+    }
+  };
+
+  const handleDeleteSelectedLocations = () => {
+    axios
+      .delete("http://localhost:3001/deletelocations", {
+        data: { ids: selectedLocations },
+      })
+      .then((response) => {
+        setLocations(response.data);
+      })
+      .catch((error) => {
+        console.error("Error deleting selected locations:", error);
+      });
+  };
 
   return (
     <div className="max-w-screen-lg mx-auto p-4">
+      <div>
+        <button
+          className="bg-red-500 text-white py-2 px-4 my-9 mr-9 rounded shadow hover:bg-red-600"
+          onClick={handleDeleteSelectedLocations}
+        >
+          Delete Selected
+        </button>
+        {/* <FontAwesomeIcon className="mr-9" icon={faTrash} /> */}
+        <FontAwesomeIcon icon={faTags} />
+      </div>
+
       <table className="min-w-full bg-white border border-gray-300 shadow-sm">
         <thead>
           <tr className="border-t border-b border-gray-300">
@@ -77,17 +145,18 @@ const LocationForm = () => {
         <tbody>
           {locations.map((location, index) => (
             <tr key={index} className="border-t border-b border-gray-300">
-              <td className="py-3 px-6">
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    value={location._id}
-                    checked={selectedLocations.includes(location._id)}
-                    onChange={() => toggleLocationSelection(location._id)}
-                    className="text-blue-100 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                  />
-                </div>
-              </td>
+              <th className="py-3 px-6 text-left">
+                <input
+                  type="checkbox"
+                  value={location._id}
+                  checked={selectedLocations.includes(location._id)}
+                  onChange={handleCheckboxChange}
+                  className="text-blue-100 bg-gray-100 border-gray-300 rounded
+                focus:ring-blue-500 dark:focus:ring-blue-600
+                dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700
+                dark:border-gray-600"
+                />
+              </th>
               <td className="py-3 px-6">{location.locationName}</td>
               <td className="py-3 px-6">{location.locationDescription}</td>
               <td className="py-3 px-6">{location.country}</td>
@@ -95,12 +164,17 @@ const LocationForm = () => {
               <td className="py-3 px-6">{location.city}</td>
               <td className="py-3 px-6">
                 <select
-                  value={selectedTag}
-                  onChange={(e) => setSelectedTag(console.log(e.target.value))}
+                  value={selectedTags[location._id] || ""}
+                  onChange={(e) =>
+                    setSelectedTags({
+                      ...selectedTags,
+                      [location._id]: e.target.value,
+                    })
+                  }
                   className="bg-blue-100 hover:bg-gray-100 text-gray-800 font-semibold py-2 px-14 mb-10 border border-gray-400 rounded shadow"
                 >
                   <option
-                    className="bg-indigo-100 hover:bg-gray-100 text-gray-800 font-semibold py-2 px-14 border border-gray-400 rounded shadow"
+                    className="bg-indigo-100 hover-bg-gray-100 text-gray-800 font-semibold py-2 px-14 border border-gray-400 rounded shadow"
                     value=""
                   >
                     Select or create a new tag
@@ -109,12 +183,18 @@ const LocationForm = () => {
                     <option
                       key={tagIndex}
                       value={tag}
-                      className="bg-indigo-100 hover:bg-green-500 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
+                      className="bg-indigo-100 hover-bg-green-500 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
                     >
                       {tag}
                     </option>
                   ))}
                 </select>
+                <button
+                  onClick={() => removeTag(selectedTags[location._id])}
+                  className="text-red-500"
+                >
+                  <FontAwesomeIcon icon={faTimes} />
+                </button>
                 {isCreatingNewTag ? (
                   <div className="flex items-center">
                     <input
@@ -143,7 +223,7 @@ const LocationForm = () => {
                 )}
                 <button
                   onClick={assignTagsToSelectedLocations}
-                  className="bg-indigo-300 text-white py-1 px-2 rounded hover:bg-indigo-700"
+                  className="bg-indigo-300 text-white py-1 px-2 rounded hover-bg-indigo-700"
                 >
                   Assign Tag
                 </button>
@@ -154,7 +234,10 @@ const LocationForm = () => {
                 </button>
               </td>
               <td>
-                <button class="bg-blue-100 hover:bg-blue-400 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow">
+                <button
+                  class="bg-blue-100 hover:bg-blue-400 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
+                  onClick={() => OnHandleDelete(location._id)}
+                >
                   Delete
                 </button>
               </td>
