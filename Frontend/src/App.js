@@ -1,7 +1,6 @@
 import React from "react";
 import NavBar from "./Components/NavBar";
 import LocationForm from "./Pages/LocationForm";
-import { TransactionsTable } from "./Pages/TransactionsTable";
 
 import ShowData from "./Pages/ShowData";
 import { Route, Routes } from "react-router-dom";
@@ -22,7 +21,6 @@ function App() {
       <Routes>
         <Route path="/" element={<LocationForm />} />
         <Route path="/show" element={<ShowData />} />
-        <Route path="/jo" element={<TransactionsTable />} />
       </Routes>
     </div>
   );

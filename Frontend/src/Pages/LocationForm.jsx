@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {  useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import Select from "react-select";
 import axios from "axios";
@@ -9,7 +9,6 @@ const LocationForm = () => {
     control,
     handleSubmit,
     formState: { errors },
-    setValue,
     reset,
   } = useForm();
 

@@ -75,10 +75,8 @@ exports.deleteSelectedLocation = async (req, res) => {
     const deleteResult = await Location.deleteMany({
       _id: { $in: idsToDelete },
     });
-
     const updatedLocations = await Location.find({});
-    console.log(updatedLocations, "updatedLocations");
-    res.send(updatedLocations, deleteResult.deletedCount);
+    res.send(updatedLocations);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
