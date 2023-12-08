@@ -55,19 +55,6 @@ exports.deleteLocation = async (req, res) => {
   }
 };
 
-exports.updateLocation = async (req, res) => {
-  try {
-    const location = await Location.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    // if (!location) return res.status(404).send();
-    res.send(location);
-  } catch (error) {
-    res.status(400).send(error);
-  }
-};
-
 exports.deleteSelectedLocation = async (req, res) => {
   const idsToDelete = req.body.ids;
 
@@ -79,5 +66,19 @@ exports.deleteSelectedLocation = async (req, res) => {
     res.send(updatedLocations);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.updatedLocations = async (req, res) => {
+  try {
+    const Updatelocation = await Location.findByIdAndUpdate(
+      req.params.id,
+      req.body
+    );
+    if (!Updatelocation) return res.status(404).send();
+    const updatedData = await Location.find({});
+    res.send(updatedData);
+  } catch (error) {
+    res.status(400).send(error);
   }
 };

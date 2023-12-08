@@ -345,11 +345,7 @@ const LocationForm = () => {
                       Assign Tag
                     </button>
                   </td>
-                  <td>
-                    <button class="bg-green-500 hover:bg-green-600 text-black-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow">
-                      Edit
-                    </button>
-                  </td>
+
                   <td>
                     <button
                       class="bg-blue-400 hover:bg-blue-300 text-black-600 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
