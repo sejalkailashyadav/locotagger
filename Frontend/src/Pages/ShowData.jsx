@@ -13,16 +13,16 @@ const LocationForm = () => {
   const [locations, setLocations] = useState([]);
   const [tags, setTags] = useState(["Home", "Office", "Others"]);
   const [selectedLocations, setSelectedLocations] = useState([]);
-  const [selectedTags, setSelectedTags] = useState([]);
+  const [selectedTags, setSelectedTags] = useState({});
   const [newTag, setNewTag] = useState("");
   const [isCreatingNewTag, setIsCreatingNewTag] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
   const [isTagDropdownOpen, setIsTagDropdownOpen] = useState(false);
-  const totalRecordParPage = 3;
+  const totalRecordPerPage = 3;
   const [currentPage, setCurrentPage] = useState(1);
-  const startIndex = (currentPage - 1) * totalRecordParPage;
-  const endIndex = startIndex + totalRecordParPage;
-  const [searchText, SetSearchText] = useState("");
+  const startIndex = (currentPage - 1) * totalRecordPerPage;
+  const endIndex = startIndex + totalRecordPerPage;
+  const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
     axios
@@ -36,28 +36,24 @@ const LocationForm = () => {
   }, []);
 
   const toggleLocationSelection = (location) => {
-    if (selectedLocations.includes(location)) {
-      setSelectedLocations(
-        selectedLocations.filter((item) => item !== location)
-      );
-    } else {
-      setSelectedLocations([...selectedLocations, location]);
-      setSelectedTags({
-        ...selectedTags,
-        [location]: selectedTags[location] || "",
-      });
-    }
+    setSelectedLocations((prevSelected) =>
+      prevSelected.includes(location)
+        ? prevSelected.filter((item) => item !== location)
+        : [...prevSelected, location]
+    );
+    setSelectedTags((prevSelectedTags) => ({
+      ...prevSelectedTags,
+      [location]: prevSelectedTags[location] || "",
+    }));
   };
 
   const assignTagsToSelectedLocations = () => {
     if (selectedLocations.length > 0 && selectedTags) {
-      const updatedLocations = locations.map((loc) => {
-        if (selectedLocations.includes(loc._id)) {
-          return { ...loc, tag: selectedTags[loc._id] || selectedTags };
-        } else {
-          return loc;
-        }
-      });
+      const updatedLocations = locations.map((loc) =>
+        selectedLocations.includes(loc._id)
+          ? { ...loc, tag: selectedTags[loc._id] || selectedTags }
+          : loc
+      );
 
       setLocations(updatedLocations);
       setSelectedLocations([]);
@@ -71,6 +67,7 @@ const LocationForm = () => {
       setIsCreatingNewTag(false);
     }
   };
+
   const removeTag = (tagToRemove) => {
     const updatedTags = tags.filter((tag) => tag !== tagToRemove);
     setTags(updatedTags);
@@ -85,7 +82,7 @@ const LocationForm = () => {
     });
   };
 
-  const OnHandleDelete = (id) => {
+  const handleDeleteLocation = (id) => {
     axios
       .delete(`http://localhost:3001/delete/${id}`)
       .then((response) => {
@@ -98,11 +95,6 @@ const LocationForm = () => {
 
   const handleCheckboxChange = (event) => {
     const locationId = event.target.value;
-    if (event.target.checked) {
-      setSelectedLocations([...selectedLocations, locationId]);
-    } else {
-      setSelectedLocations(selectedLocations.filter((id) => id !== locationId));
-    }
     toggleLocationSelection(locationId);
   };
 
@@ -113,7 +105,6 @@ const LocationForm = () => {
       })
       .then((response) => {
         setLocations(response.data);
-        window.location.reload();
         setShowMessage(true);
       })
       .catch((error) => {
@@ -122,30 +113,20 @@ const LocationForm = () => {
   };
 
   const toggleTagSelection = (tag) => {
-    if (selectedTags[tag]) {
-      setSelectedTags((prevSelectedTags) => {
-        const updatedSelectedTags = { ...prevSelectedTags };
-        delete updatedSelectedTags[tag];
-        return updatedSelectedTags;
-      });
-    } else {
-      setSelectedTags((prevSelectedTags) => ({
-        ...prevSelectedTags,
-        [tag]: "",
-      }));
-    }
+    setSelectedTags((prevSelectedTags) => {
+      const updatedSelectedTags = { ...prevSelectedTags };
+      delete updatedSelectedTags[tag];
+      return updatedSelectedTags;
+    });
   };
 
   const applySelectedTags = () => {
-    console.log(selectedTags);
     if (selectedLocations.length > 0 && selectedTags) {
-      const updatedLocations = locations.map((loc) => {
-        if (selectedLocations.includes(loc._id)) {
-          return { ...loc, tag: selectedTags[loc._id] || selectedTags };
-        } else {
-          return loc;
-        }
-      });
+      const updatedLocations = locations.map((loc) =>
+        selectedLocations.includes(loc._id)
+          ? { ...loc, tag: selectedTags[loc._id] || selectedTags }
+          : loc
+      );
 
       setLocations(updatedLocations);
       setSelectedLocations([]);
@@ -157,45 +138,29 @@ const LocationForm = () => {
     setIsTagDropdownOpen(!isTagDropdownOpen);
   };
 
-  const filteredLocations = locations.filter(
-    (serachedText) =>
-      serachedText.locationName
-        .toLowerCase()
-        .replace(/\s/g, "")
-        .includes(searchText.toLowerCase().replace(/\s/g, "")) ||
-      serachedText.locationDescription
-        .toLowerCase()
-        .replace(/\s/g, "")
-        .includes(searchText.toLowerCase().replace(/\s/g, "")) ||
-      serachedText.country
-        .toLowerCase()
-        .replace(/\s/g, "")
-        .includes(searchText.toLowerCase().replace(/\s/g, "")) ||
-      serachedText.state
-        .toLowerCase()
-        .replace(/\s/g, "")
-        .includes(searchText.toLowerCase().replace(/\s/g, "")) ||
-      serachedText.city
-        .toLowerCase()
-        .replace(/\s/g, "")
-        .includes(searchText.toLowerCase().replace(/\s/g, ""))
+  const filteredLocations = locations.filter((location) =>
+    Object.values(location)
+      .join("")
+      .toLowerCase()
+      .includes(searchText.toLowerCase().replace(/\s/g, ""))
   );
+
   return (
-    <div className="max-w-screen-lg mx-auto p-4">
+    <div className="container mx-auto p-4">
       {showMessage && (
         <div className="message success">Selected locations deleted!</div>
       )}
 
-      <form class="d-flex">
+      <form className="lg:flex lg:items-center mb-4">
         <input
-          class="form-control me-2"
+          className="w-full lg:w-1/2 px-3 py-2 leading-tight focus:outline-none focus:shadow-outline"
           type="search"
           placeholder="Search Something.."
           aria-label="Search"
           value={searchText}
-          onChange={(e) => SetSearchText(e.target.value)}
+          onChange={(e) => setSearchText(e.target.value)}
         />
-        <FontAwesomeIcon icon={faSearch} />
+        <FontAwesomeIcon icon={faSearch} className="ml-2" />
       </form>
 
       {isTagDropdownOpen && (
@@ -220,21 +185,15 @@ const LocationForm = () => {
         </div>
       )}
 
-      <div>
+      <div className="flex flex-col lg:flex-row lg:space-x-2">
         <button
-          className="bg-red-500 text-white py-2 px-4 my-9 mr-9 rounded shadow hover:bg-red-600"
+          className="bg-red-500 text-white py-2 px-4 my-2 lg:my-0 lg:mr-2 rounded shadow hover:bg-red-600"
           onClick={handleDeleteSelectedLocations}
         >
           Delete Selected
         </button>
-
-        <button
-          className="bg-green-500 text-white py-2 px-4 my-9 mr-9 rounded shadow hover:bg-green-600"
-          onClick={toggleTagDropdown}
-        >
-          Assign Selected Tags
-        </button>
       </div>
+
       {filteredLocations.length > 0 ? (
         <table className="min-w-full bg-white border border-gray-300 shadow-sm">
           <thead>
@@ -253,8 +212,6 @@ const LocationForm = () => {
             </tr>
           </thead>
           <tbody>
-            {/* {locations.map((location, index) => ( */}
-
             {filteredLocations
               .slice(startIndex, endIndex)
               .map((location, index) => (
@@ -265,10 +222,7 @@ const LocationForm = () => {
                       value={location._id}
                       checked={selectedLocations.includes(location._id)}
                       onChange={handleCheckboxChange}
-                      className="text-blue-100 bg-gray-100 border-gray-300 rounded
-                focus:ring-blue-500 dark:focus:ring-blue-600
-                dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700
-                dark:border-gray-600"
+                      className="text-blue-100 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                     />
                   </th>
                   <td className="py-3 px-6">{location.locationName}</td>
@@ -348,8 +302,8 @@ const LocationForm = () => {
 
                   <td>
                     <button
-                      class="bg-blue-400 hover:bg-blue-300 text-black-600 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
-                      onClick={() => OnHandleDelete(location._id)}
+                      className="w-full lg:w-40 bg-blue-400 hover:bg-blue-300 text-black-600 font-semibold py-2 px-4 border border-gray-400 rounded shadow"
+                      onClick={() => handleDeleteLocation(location._id)}
                     >
                       Delete
                     </button>
@@ -367,7 +321,9 @@ const LocationForm = () => {
       )}
       <div className="flex justify-between items-center mt-4">
         <button
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          onClick={() =>
+            setCurrentPage((prev) => Math.max(prev - 1, 1))
+          }
           disabled={currentPage === 1}
           className={`px-4 py-2 rounded-lg ${
             currentPage === 1
@@ -378,7 +334,7 @@ const LocationForm = () => {
           Previous
         </button>
 
-        <span className="text-lg text-red-500 font-bold ">
+        <span className="text-lg text-red-500 font-bold">
           Page {currentPage}
         </span>
 
@@ -387,16 +343,18 @@ const LocationForm = () => {
             setCurrentPage((prev) => {
               const newPage = Math.min(
                 prev + 1,
-                Math.ceil(locations.length / totalRecordParPage)
+                Math.ceil(filteredLocations.length / totalRecordPerPage)
               );
               return newPage;
             });
           }}
           disabled={
-            currentPage === Math.ceil(locations.length / totalRecordParPage)
+            currentPage ===
+            Math.ceil(filteredLocations.length / totalRecordPerPage)
           }
           className={`px-4 py-2 rounded-lg ${
-            currentPage === Math.ceil(locations.length / totalRecordParPage)
+            currentPage ===
+            Math.ceil(filteredLocations.length / totalRecordPerPage)
               ? "bg-gray-300 text-gray-600 cursor-not-allowed"
               : "bg-blue-500 text-white hover:bg-blue-600"
           }`}
