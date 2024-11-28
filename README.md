@@ -44,7 +44,11 @@ To use LocoTagger, follow these steps:
    - Assign or remove tags from the selected locations using the provided options.
 
 
-Thank you for using  LocoTagger !
 
+Thank you for using **LocoTagger**! 🎉  
+Explore the live application here:  
+👉 [LocoTagger Live Site](https://65a4fcf6cd15ad249db1860a--splendid-daifuku-987612.netlify.app/)
+
+---
 ```
 
