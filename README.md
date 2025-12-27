@@ -1,6 +1,7 @@
 # LocoTagger 
 
 ## Overview
+
 LocoTagger is a web application that allows users to manage and categorize locations based on country, state, city, and tags.
 ## Core Features
 1. **Create Locations:** Users can create new locations by selecting the country, state, and city using dependent drop-down menus.
