@@ -41,9 +41,9 @@ To use LocoTagger, follow these steps:
 
 
 
-Thank you for using **LocoTagger**! 🎉  
+Thank you for using **LocoTagger**!  
 Explore the live application here:  
-👉 [LocoTagger Live Site](https://65a4fcf6cd15ad249db1860a--splendid-daifuku-987612.netlify.app/)
+ [LocoTagger Live Site](https://65a4fcf6cd15ad249db1860a--splendid-daifuku-987612.netlify.app/)
 
 ---
 ```
