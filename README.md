@@ -1,6 +1,7 @@
 # LocoTagger 
 
 LocoTagger is a web application that allows users to manage and categorize locations based on country, state, city, and tags.
+
 ## Core Features
 1. **Create Locations:** Users can create new locations by selecting the country, state, and city using dependent drop-down menus.
 2. **List Locations:** View a list of all created locations with checkboxes and associated tags.
@@ -15,10 +16,12 @@ LocoTagger is a web application that allows users to manage and categorize locat
 ## Getting Started
 To use LocoTagger, follow these steps:
 
+
 1. Clone the repository to your local machine.
 2. Install the necessary dependencies for the frontend and backend.
 3. Configure the database settings in the backend if required.
 4. Start the frontend and backend servers.
+
 
 ## Usage
 1. Visit the web application in your browser.
@@ -39,9 +42,8 @@ To use LocoTagger, follow these steps:
    - Select multiple locations by checking their checkboxes.
    - Assign or remove tags from the selected locations using the provided options.
 
-
-
 Thank you for using **LocoTagger**!  
+
 Explore the live application here:  
  [LocoTagger Live Site](https://65a4fcf6cd15ad249db1860a--splendid-daifuku-987612.netlify.app/)
 
